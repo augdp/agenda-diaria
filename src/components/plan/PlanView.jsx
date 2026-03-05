@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash, Clock, Down, Gear } from "../shared/Icons";
-import AddRitualForm from "../shared/AddRitualForm";
-import AddActivityInline from "../shared/AddActivityInline";
+import { Trash, Down, Clock, Gear } from "../shared/Icons";
 import UniverseManager from "./UniverseManager";
 import CopyDayDropdown from "./CopyDayDropdown";
 import { DEFAULT_UNIVERSES } from "../../constants";
@@ -9,79 +7,65 @@ import { WEEKDAYS_SHORT, WEEKDAYS_FULL } from "../../constants/dates";
 import { uid, deepClone } from "../../utils/helpers";
 import S from "../../styles/theme";
 
-export default function PlanView({ plan, onSave }) {
-  const [selDay, setSelDay]         = useState(1); // Monday by default
+/**
+ * Plan slots are now: { id, templateId, startTime }
+ * The plan no longer stores activities inline — it references templates.
+ */
+export default function PlanView({ plan, onSave, templates, universes, onSaveUniverses }) {
+  const [selDay, setSelDay]       = useState(1);
   const [showUniMgr, setShowUniMgr] = useState(false);
-  const [showAddRit, setShowAddRit] = useState(false);
-  const [expandedRit, setExpandedRit] = useState(null);
+  const [showAdd, setShowAdd]     = useState(false);
 
-  const universes = plan.universes || DEFAULT_UNIVERSES;
-  const dayRits   = plan.days[selDay] || [];
+  const u = universes || DEFAULT_UNIVERSES;
+  const daySlots = plan.days[selDay] || [];
 
   /* ── Helpers ── */
-  const saveDayRits = (rits) => {
-    onSave({ ...plan, days: { ...plan.days, [selDay]: rits } });
+  const saveDaySlots = (slots) => {
+    onSave({ ...plan, days: { ...plan.days, [selDay]: slots } });
   };
 
-  const saveUniverses = (u) => onSave({ ...plan, universes: u });
-
   const copyToDay = (targetDay) => {
-    const copied = deepClone(dayRits).map((r) => ({
-      ...r, id: uid(),
-      activities: r.activities.map((a) => ({ ...a, id: uid() })),
-    }));
+    const copied = deepClone(daySlots).map((s) => ({ ...s, id: uid() }));
     onSave({ ...plan, days: { ...plan.days, [targetDay]: copied } });
   };
 
-  /* ── Ritual CRUD ── */
-  const addRitual = (r) => {
-    const rits = [...dayRits, { ...r, id: uid(), activities: [] }];
-    rits.sort((a, b) => a.startTime.localeCompare(b.startTime));
-    saveDayRits(rits);
-    setShowAddRit(false);
+  const addSlot = (templateId, startTime) => {
+    const slots = [...daySlots, { id: uid(), templateId, startTime }];
+    slots.sort((a, b) => a.startTime.localeCompare(b.startTime));
+    saveDaySlots(slots);
+    setShowAdd(false);
   };
 
-  const deleteRitual = (id) => {
-    saveDayRits(dayRits.filter((r) => r.id !== id));
-    if (expandedRit === id) setExpandedRit(null);
+  const deleteSlot = (id) => {
+    saveDaySlots(daySlots.filter((s) => s.id !== id));
   };
 
-  /* ── Activity CRUD ── */
-  const addActivity = (rid, act) => {
-    saveDayRits(
-      dayRits.map((r) =>
-        r.id === rid ? { ...r, activities: [...r.activities, { ...act, id: uid() }] } : r,
-      ),
-    );
-  };
-
-  const deleteActivity = (rid, aid) => {
-    saveDayRits(
-      dayRits.map((r) =>
-        r.id === rid ? { ...r, activities: r.activities.filter((a) => a.id !== aid) } : r,
-      ),
-    );
+  const updateSlotTime = (id, startTime) => {
+    const slots = daySlots.map((s) => (s.id === id ? { ...s, startTime } : s));
+    slots.sort((a, b) => a.startTime.localeCompare(b.startTime));
+    saveDaySlots(slots);
   };
 
   return (
     <div style={{ animation: "fadeUp 0.3s ease" }}>
       <header style={{ ...S.header, marginBottom: 8 }}>
         <p style={S.viewSubtitle}>Planejamento Semanal</p>
-        <h2 style={S.viewTitle}>Defina a rotina padrão para cada dia</h2>
+        <h2 style={S.viewTitle}>Atribua blocos a cada dia da semana</h2>
       </header>
 
       {/* Universe manager */}
       <button onClick={() => setShowUniMgr(!showUniMgr)} style={S.gearBtn}>
         <Gear /> Gerenciar universos
       </button>
-      {showUniMgr && <UniverseManager universes={universes} onSave={saveUniverses} />}
+      {showUniMgr && <UniverseManager universes={u} onSave={onSaveUniverses} />}
 
       {/* Day tabs */}
       <div style={S.daySelector}>
         {WEEKDAYS_SHORT.map((d, i) => {
           const count = (plan.days[i] || []).length;
           return (
-            <button key={i} onClick={() => setSelDay(i)} style={{ ...S.dayBtn, ...(selDay === i ? S.dayBtnOn : {}) }}>
+            <button key={i} onClick={() => setSelDay(i)}
+              style={{ ...S.dayBtn, ...(selDay === i ? S.dayBtnOn : {}) }}>
               <span>{d}</span>
               {count > 0 && (
                 <span style={{ ...S.dayBtnCount, background: selDay === i ? "#3E2F1C" : "#C8BDA8" }}>
@@ -93,50 +77,67 @@ export default function PlanView({ plan, onSave }) {
         })}
       </div>
 
-      {/* Copy */}
-      {dayRits.length > 0 && <CopyDayDropdown currentDay={selDay} onCopy={copyToDay} />}
+      {daySlots.length > 0 && <CopyDayDropdown currentDay={selDay} onCopy={copyToDay} />}
 
-      {/* Rituals */}
+      {/* Slots */}
       <div style={{ marginTop: 12 }}>
-        {dayRits.length === 0 && !showAddRit && (
+        {daySlots.length === 0 && !showAdd && (
           <div style={S.emptyPlan}>
             <div style={{ fontSize: 28, opacity: 0.35, marginBottom: 6 }}>📝</div>
             <p style={{ fontStyle: "italic", fontSize: 14, margin: "0 0 3px", color: "#8B7355" }}>
-              Nenhum rito para {WEEKDAYS_FULL[selDay]}
+              Nenhum bloco para {WEEKDAYS_FULL[selDay]}
             </p>
             <p style={{ fontSize: 11.5, fontFamily: "'DM Sans'", color: "#A89880", margin: 0 }}>
-              Adicione ritos que serão o template deste dia
+              Atribua blocos criados na aba "Blocos" a este dia
             </p>
           </div>
         )}
 
-        {dayRits.map((rit) => {
-          const univs = [...new Set(rit.activities.map((a) => a.universe))];
+        {daySlots.map((slot) => {
+          const tpl = templates.find((t) => t.id === slot.templateId);
+          if (!tpl) {
+            return (
+              <div key={slot.id} style={{ ...ST.slotCard, borderLeftColor: "#ccc" }}>
+                <div style={ST.slotHead}>
+                  <span style={{ ...ST.slotTime, color: "#aaa" }}>{slot.startTime}</span>
+                  <span style={{ flex: 1, fontStyle: "italic", color: "#aaa", fontSize: 13, fontFamily: "'DM Sans'" }}>
+                    Bloco removido
+                  </span>
+                  <button onClick={() => deleteSlot(slot.id)} style={{ ...S.iBtn, color: "#c58070" }}>
+                    <Trash />
+                  </button>
+                </div>
+              </div>
+            );
+          }
+
+          const univs = [...new Set(tpl.activities.map((a) => a.universe))];
           const primary = univs[0] || "outro";
-          const pal = universes[primary] || DEFAULT_UNIVERSES.outro;
-          const isExp = expandedRit === rit.id;
-          const totM = rit.activities.reduce((s, a) => s + a.duration, 0);
+          const pal = u[primary] || DEFAULT_UNIVERSES.outro;
+          const totM = tpl.activities.reduce((s, a) => s + a.duration, 0);
 
           return (
-            <div
-              key={rit.id}
-              style={{
-                ...S.planCard,
-                borderLeftColor: pal.color,
-                background: `linear-gradient(140deg, ${(pal.bg || pal.color + "22")}99 0%, #ffffff99 100%)`,
-              }}
-            >
-              {/* Head */}
-              <div style={S.planCardHead} onClick={() => setExpandedRit(isExp ? null : rit.id)}>
-                <span style={{ ...S.planTime, color: pal.color }}>{rit.startTime}</span>
+            <div key={slot.id} style={{
+              ...ST.slotCard,
+              borderLeftColor: pal.color,
+              background: `linear-gradient(140deg, ${(pal.bg || pal.color + "22")}99 0%, #ffffff99 100%)`,
+            }}>
+              <div style={ST.slotHead}>
+                <input
+                  type="time"
+                  value={slot.startTime}
+                  onChange={(e) => updateSlotTime(slot.id, e.target.value)}
+                  style={ST.timeInput}
+                  onClick={(e) => e.stopPropagation()}
+                />
                 <div style={{ flex: 1 }}>
-                  <div style={S.planName}>{rit.name}</div>
+                  <div style={ST.slotName}>🧩 {tpl.name}</div>
                   {univs.length > 0 && (
                     <div style={S.cardTags}>
-                      {univs.map((u) => {
-                        const uv = universes[u] || DEFAULT_UNIVERSES.outro;
+                      {univs.map((k) => {
+                        const uv = u[k] || DEFAULT_UNIVERSES.outro;
                         return (
-                          <span key={u} style={{ ...S.uTag, background: uv.color + "14", color: uv.color }}>
+                          <span key={k} style={{ ...S.uTag, background: uv.color + "14", color: uv.color }}>
                             {uv.emoji} {uv.label}
                           </span>
                         );
@@ -149,47 +150,90 @@ export default function PlanView({ plan, onSave }) {
                     {totM}min
                   </span>
                 )}
-                <span style={{ ...S.expandIcon, transform: isExp ? "rotate(180deg)" : "rotate(0)" }}>
-                  <Down />
-                </span>
-                <button onClick={(e) => { e.stopPropagation(); deleteRitual(rit.id); }} style={{ ...S.iBtn, color: "#c58070" }}>
+                <button onClick={() => deleteSlot(slot.id)} style={{ ...S.iBtn, color: "#c58070" }}>
                   <Trash />
                 </button>
               </div>
-
-              {/* Activities */}
-              {isExp && (
-                <div style={S.actSection}>
-                  {rit.activities.length === 0 && <p style={S.emptyAct}>Adicione as atividades deste rito</p>}
-                  {rit.activities.map((act) => {
-                    const au = universes[act.universe] || DEFAULT_UNIVERSES.outro;
-                    return (
-                      <div key={act.id} style={S.actRow}>
-                        <span style={{ ...S.actTagBadge, background: au.color + "15", color: au.color }}>{au.emoji}</span>
-                        <span style={S.actName}>{act.name}</span>
-                        <span style={{ ...S.actDur, color: au.color }}><Clock /> {act.duration}m</span>
-                        <button onClick={() => deleteActivity(rit.id, act.id)} style={{ ...S.iBtn, color: "#bbb" }}>
-                          <Trash />
-                        </button>
-                      </div>
-                    );
-                  })}
-                  <AddActivityInline onAdd={(a) => addActivity(rit.id, a)} accent={pal.color} universes={universes} />
-                </div>
-              )}
             </div>
           );
         })}
 
-        {/* Add ritual */}
-        {showAddRit ? (
-          <AddRitualForm onAdd={addRitual} onCancel={() => setShowAddRit(false)} offset={0} />
+        {/* Add slot */}
+        {showAdd ? (
+          <AddSlotForm
+            templates={templates}
+            onAdd={addSlot}
+            onCancel={() => setShowAdd(false)}
+          />
         ) : (
-          <button onClick={() => setShowAddRit(true)} style={{ ...S.addRitBtn, marginLeft: 0, maxWidth: "100%" }}>
-            <Plus /> Adicionar rito padrão
+          <button onClick={() => setShowAdd(true)}
+            style={{ ...S.addRitBtn, marginLeft: 0, maxWidth: "100%" }}>
+            + Atribuir bloco
           </button>
         )}
       </div>
     </div>
   );
 }
+
+/* ── Add Slot form: pick template + time ── */
+function AddSlotForm({ templates, onAdd, onCancel }) {
+  const [tplId, setTplId] = useState(templates[0]?.id || "");
+  const [time, setTime]   = useState("08:00");
+
+  if (templates.length === 0) {
+    return (
+      <div style={{ ...S.addRitCard, marginLeft: 0 }}>
+        <p style={{ fontSize: 13, fontFamily: "'DM Sans'", color: "#8B7355", margin: 0 }}>
+          Nenhum bloco disponível. Crie blocos na aba "Blocos" primeiro.
+        </p>
+        <button onClick={onCancel} style={{ ...S.cBtn, marginTop: 10 }}>Fechar</button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ ...S.addRitCard, marginLeft: 0 }}>
+      <div style={S.formTitle}>Atribuir Bloco ao Dia</div>
+      <div style={{ display: "flex", gap: 10 }}>
+        <div>
+          <label style={S.fl}>Horário</label>
+          <input type="time" value={time} onChange={(e) => setTime(e.target.value)}
+            style={{ ...S.fi, width: 115 }} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={S.fl}>Bloco</label>
+          <select value={tplId} onChange={(e) => setTplId(e.target.value)} style={{ ...S.fs, width: "100%" }}>
+            {templates.map((t) => (
+              <option key={t.id} value={t.id}>🧩 {t.name} ({t.activities.length} atividades)</option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: 6, justifyContent: "flex-end", marginTop: 12 }}>
+        <button onClick={onCancel} style={S.cBtn}>Cancelar</button>
+        <button onClick={() => tplId && onAdd(tplId, time)}
+          style={{ ...S.sBtn, background: "#3E2F1C" }}>Atribuir</button>
+      </div>
+    </div>
+  );
+}
+
+/* ── Local styles ── */
+const ST = {
+  slotCard: {
+    borderLeft: "4px solid #999", borderRadius: "0 12px 12px 0",
+    marginBottom: 8, overflow: "hidden", boxShadow: "0 1px 8px rgba(0,0,0,0.03)",
+  },
+  slotHead: {
+    display: "flex", alignItems: "center", gap: 10, padding: "11px 12px",
+  },
+  slotName: { fontSize: 14, fontWeight: 700, color: "#3E2F1C" },
+  slotTime: { fontSize: 13, fontFamily: "'DM Sans'", fontWeight: 700, minWidth: 44 },
+  timeInput: {
+    border: "1.5px solid #D4CCB8", borderRadius: 8, padding: "5px 8px",
+    fontSize: 13, fontFamily: "'DM Sans'", fontWeight: 700,
+    background: "rgba(255,255,255,0.5)", outline: "none", color: "#3E2F1C",
+    width: 100,
+  },
+};

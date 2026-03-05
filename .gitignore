@@ -1,1 +1,5 @@
 node_modules/
+dist/
+
+# Day execution data (local only, not committed)
+data/days/

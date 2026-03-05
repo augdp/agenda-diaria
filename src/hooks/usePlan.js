@@ -1,15 +1,32 @@
-import { useStorage } from "./useStorage";
-import { PLAN_KEY, emptyPlan, DEFAULT_UNIVERSES } from "../constants";
+import { useState, useEffect, useCallback } from "react";
+import { getPlan, savePlan as apiSave } from "../api/storage";
+import { emptyPlan } from "../constants";
 
 /**
- * Manages the weekly plan (template rituals per weekday + universe definitions).
- *
- * @returns {{ plan, savePlan, loading, universes }}
+ * Weekly plan: plan.days[dow] is an array of slots.
+ * Each slot: { id, templateId, startTime }
  */
 export function usePlan() {
-  const { data: plan, save: savePlan, loading } = useStorage(PLAN_KEY, emptyPlan);
+  const [plan, setPlan] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const universes = plan?.universes || DEFAULT_UNIVERSES;
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const data = await getPlan();
+        setPlan(data || emptyPlan());
+      } catch {
+        setPlan(emptyPlan());
+      }
+      setLoading(false);
+    })();
+  }, []);
 
-  return { plan, savePlan, loading, universes };
+  const save = useCallback(async (next) => {
+    setPlan(next);
+    try { await apiSave(next); } catch (e) { console.error("savePlan failed:", e); }
+  }, []);
+
+  return { plan, savePlan: save, loading };
 }

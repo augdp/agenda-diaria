@@ -1,14 +1,10 @@
-// ─── Storage ───
-export const STORAGE_PREFIX = "agenda-v4";
-export const PLAN_KEY = `${STORAGE_PREFIX}:plan`;
-
 // ─── Timeline ───
 export const HOURS = Array.from({ length: 18 }, (_, i) => i + 5); // 05h – 22h
 
 // ─── Duration options (minutes) ───
 export const DURATION_OPTIONS = [15, 20, 25, 30, 35, 40, 45, 50];
 
-// ─── Default universes (used as seed on first load) ───
+// ─── Default universes (seed for first run) ───
 export const DEFAULT_UNIVERSES = {
   faculdade:   { label: "Faculdade",        emoji: "📚", color: "#3A7BBF", bg: "#DDEAF7" },
   auditoria:   { label: "Auditoria",        emoji: "📋", color: "#B8860B", bg: "#F5EDCF" },
@@ -24,8 +20,20 @@ export const PRESET_COLORS = [
   "#6B8A6B", "#2E8B8B", "#8B4513", "#556B2F", "#8B008B",
 ];
 
-// ─── Empty plan factory ───
+// ─── Empty structures ───
 export const emptyPlan = () => ({
-  universes: { ...DEFAULT_UNIVERSES },
   days: { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
 });
+
+/**
+ * Data shapes reference:
+ *
+ * Template:
+ * { id, name, activities: [{ id, name, duration, universe }] }
+ *
+ * Plan slot (in plan.days[dow]):
+ * { id, templateId, startTime }
+ *
+ * Day ritual (materialized in days/YYYY-MM-DD.json):
+ * { id, templateId, name, startTime, notes, activities: [{ id, name, duration, universe, done }] }
+ */

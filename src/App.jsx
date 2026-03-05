@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react";
 
-import { usePlan, useDayData } from "./hooks";
-import { STORAGE_PREFIX } from "./constants";
+import { useUniverses, useTemplates, usePlan, useDayData } from "./hooks";
+import { getDay } from "./api/storage";
 import { dateKey, getWeekDates } from "./constants/dates";
-import { TabClipboard, TabCalendar, TabChart } from "./components/shared/Icons";
+import { TabPuzzle, TabClipboard, TabCalendar, TabChart } from "./components/shared/Icons";
 import Loader from "./components/shared/Loader";
+import TemplatesView from "./components/templates/TemplatesView";
 import DayView from "./components/day/DayView";
 import PlanView from "./components/plan/PlanView";
 import HistoryView from "./components/history/HistoryView";
 import S from "./styles/theme";
 
-/* ── Global CSS (animations + scrollbar) ── */
+/* ── Global CSS ── */
 const GLOBAL_CSS = `
   @keyframes spin    { to { transform: rotate(360deg) } }
   @keyframes fadeUp  { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:translateY(0) } }
@@ -23,22 +24,23 @@ const GLOBAL_CSS = `
 `;
 
 const TABS = [
-  { key: "planejamento", label: "Planejamento", Icon: TabClipboard },
-  { key: "dia",          label: "Dia",          Icon: TabCalendar },
-  { key: "historico",    label: "Histórico",    Icon: TabChart },
+  { key: "blocos",        label: "Blocos",        Icon: TabPuzzle },
+  { key: "planejamento",  label: "Planejamento",  Icon: TabClipboard },
+  { key: "dia",           label: "Dia",           Icon: TabCalendar },
+  { key: "historico",     label: "Histórico",     Icon: TabChart },
 ];
 
 export default function App() {
   const [view, setView]       = useState("dia");
   const [curDate, setCurDate] = useState(new Date());
 
-  /* ── Plan (weekly template + universes) ── */
-  const { plan, savePlan, loading: planLoading, universes } = usePlan();
+  /* ── Global state from API ── */
+  const { universes, saveUniverses, loading: uniLoading }  = useUniverses();
+  const { templates, saveTemplates, loading: tplLoading }   = useTemplates();
+  const { plan, savePlan, loading: planLoading }             = usePlan();
+  const { dayData, saveDay, loading: dayLoading }            = useDayData(curDate, plan, templates);
 
-  /* ── Day data (bootstraps from plan on first visit) ── */
-  const { dayData, saveDay, loading: dayLoading } = useDayData(curDate, plan);
-
-  /* ── Week data (loaded lazily for history tab) ── */
+  /* ── Week data (lazy for history) ── */
   const [weekData, setWeekData] = useState(null);
 
   useEffect(() => {
@@ -47,10 +49,9 @@ export default function App() {
       const dates = getWeekDates(curDate);
       const result = {};
       for (const d of dates) {
-        const k = `${STORAGE_PREFIX}:${dateKey(d)}`;
         try {
-          const r = await window.storage.get(k);
-          result[dateKey(d)] = r ? JSON.parse(r.value) : { rituals: [] };
+          const data = await getDay(dateKey(d));
+          result[dateKey(d)] = data || { rituals: [] };
         } catch {
           result[dateKey(d)] = { rituals: [] };
         }
@@ -59,17 +60,18 @@ export default function App() {
     })();
   }, [view, curDate]);
 
-  /* ── Navigation helpers ── */
-  const navDay  = (n) => { const d = new Date(curDate); d.setDate(d.getDate() + n);       setCurDate(d); };
-  const navWeek = (n) => { const d = new Date(curDate); d.setDate(d.getDate() + n * 7);   setCurDate(d); };
+  /* ── Navigation ── */
+  const navDay  = (n) => { const d = new Date(curDate); d.setDate(d.getDate() + n);     setCurDate(d); };
+  const navWeek = (n) => { const d = new Date(curDate); d.setDate(d.getDate() + n * 7); setCurDate(d); };
 
-  if (planLoading) {
+  const globalLoading = uniLoading || tplLoading || planLoading;
+
+  if (globalLoading) {
     return <div style={S.root}><Loader /></div>;
   }
 
   return (
     <div style={S.root}>
-      {/* Fonts */}
       <link
         href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap"
         rel="stylesheet"
@@ -91,6 +93,24 @@ export default function App() {
         </div>
 
         {/* ── Views ── */}
+        {view === "blocos" && (
+          <TemplatesView
+            templates={templates}
+            onSave={saveTemplates}
+            universes={universes}
+          />
+        )}
+
+        {view === "planejamento" && (
+          <PlanView
+            plan={plan}
+            onSave={savePlan}
+            templates={templates}
+            universes={universes}
+            onSaveUniverses={saveUniverses}
+          />
+        )}
+
         {view === "dia" && (
           <DayView
             date={curDate}
@@ -100,10 +120,6 @@ export default function App() {
             onNav={navDay}
             onSave={saveDay}
           />
-        )}
-
-        {view === "planejamento" && (
-          <PlanView plan={plan} onSave={savePlan} />
         )}
 
         {view === "historico" && (

@@ -31,7 +31,6 @@ export default function UniverseManager({ universes, onSave }) {
     <div style={S.uniMgr}>
       <h4 style={S.uniTitle}>Universos disponíveis</h4>
 
-      {/* List */}
       <div style={S.uniList}>
         {Object.entries(universes).map(([k, v]) => (
           <div key={k} style={{ ...S.uniItem, borderLeftColor: v.color }}>
@@ -47,7 +46,6 @@ export default function UniverseManager({ universes, onSave }) {
         ))}
       </div>
 
-      {/* Add new */}
       <div style={S.uniAddRow}>
         <input
           value={emoji} onChange={(e) => setEmoji(e.target.value)}

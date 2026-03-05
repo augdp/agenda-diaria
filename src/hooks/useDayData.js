@@ -1,70 +1,79 @@
 import { useState, useEffect, useCallback } from "react";
-import { STORAGE_PREFIX } from "../constants";
+import { getDay, saveDay as apiSave } from "../api/storage";
 import { dateKey } from "../constants/dates";
 import { uid, deepClone } from "../utils/helpers";
 
 /**
- * Loads day-level data. If the day has no saved data yet, it bootstraps
- * from the plan template for the matching weekday.
+ * Loads the execution data for a specific date.
+ * If the day has no saved data, it materializes rituals from the
+ * weekly plan by resolving each slot's templateId.
  *
- * @param {Date}   date   The calendar date
- * @param {Object} plan   The full plan object (from usePlan)
- * @returns {{ dayData, saveDay, loading }}
+ * @param {Date}   date       Calendar date
+ * @param {Object} plan       From usePlan()
+ * @param {Array}  templates  From useTemplates()
  */
-export function useDayData(date, plan) {
+export function useDayData(date, plan, templates) {
   const [dayData, setDayData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const dk = dateKey(date);
-  const storageKey = `${STORAGE_PREFIX}:${dk}`;
-  const dow = date.getDay(); // 0-6
+  const dow = date.getDay();
 
   useEffect(() => {
-    if (!plan) return;
+    if (!plan || !templates) return;
     let cancelled = false;
 
     (async () => {
       setLoading(true);
       try {
-        const result = await window.storage.get(storageKey);
-        if (cancelled) return;
+        const existing = await getDay(dk);
+        if (!cancelled) {
+          if (existing) {
+            setDayData(existing);
+          } else {
+            // Bootstrap: resolve plan slots → full rituals
+            const slots = plan.days[dow] || [];
+            const rituals = slots
+              .map((slot) => {
+                const tpl = templates.find((t) => t.id === slot.templateId);
+                if (!tpl) return null;
+                return {
+                  id: uid(),
+                  templateId: tpl.id,
+                  name: tpl.name,
+                  startTime: slot.startTime,
+                  notes: "",
+                  activities: tpl.activities.map((a) => ({
+                    ...deepClone(a),
+                    id: uid(),
+                    done: false,
+                  })),
+                };
+              })
+              .filter(Boolean)
+              .sort((a, b) => a.startTime.localeCompare(b.startTime));
 
-        if (result) {
-          setDayData(JSON.parse(result.value));
-        } else {
-          // Bootstrap from plan template
-          const template = (plan.days[dow] || []).map((rit) => ({
-            ...deepClone(rit),
-            id: uid(),
-            notes: "",
-            activities: rit.activities.map((a) => ({ ...a, id: uid(), done: false })),
-          }));
-          template.sort((a, b) => a.startTime.localeCompare(b.startTime));
-
-          const fresh = { rituals: template, bootstrapped: true };
-          setDayData(fresh);
-          await window.storage.set(storageKey, JSON.stringify(fresh));
+            const fresh = { rituals };
+            setDayData(fresh);
+            await apiSave(dk, fresh);
+          }
         }
       } catch {
-        if (!cancelled) setDayData({ rituals: [], bootstrapped: false });
+        if (!cancelled) setDayData({ rituals: [] });
       }
       if (!cancelled) setLoading(false);
     })();
 
     return () => { cancelled = true; };
-  }, [storageKey, plan, dow]);
+  }, [dk, plan, templates, dow]);
 
-  const saveDay = useCallback(
+  const save = useCallback(
     async (next) => {
       setDayData(next);
-      try {
-        await window.storage.set(storageKey, JSON.stringify(next));
-      } catch (e) {
-        console.error("useDayData – save failed:", e);
-      }
+      try { await apiSave(dk, next); } catch (e) { console.error("saveDay failed:", e); }
     },
-    [storageKey],
+    [dk],
   );
 
-  return { dayData, saveDay, loading };
+  return { dayData, saveDay: save, loading };
 }

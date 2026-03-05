@@ -1,88 +1,80 @@
 # Agenda Diária
 
-Aplicativo de agenda pessoal com planejamento semanal, execução diária e histórico.
+Aplicativo de agenda pessoal com blocos reutilizáveis, planejamento semanal, execução diária e histórico.
+
+## Como rodar
+
+```bash
+npm install
+npm run dev
+```
+
+Isso inicia dois processos: o servidor Express (porta 3001) e o Vite (porta 5173).
+Os dados ficam salvos em arquivos JSON na pasta `data/`.
 
 ## Arquitetura
 
 ```
-src/
-├── App.jsx                          ← Raiz: tab routing + estado global
+├── server/
+│   └── index.js                     ← Express API (lê/escreve JSON em data/)
 │
-├── constants/
-│   ├── index.js                     ← Storage keys, universos padrão, config
-│   └── dates.js                     ← Nomes de dias/meses, formatação, helpers de data
+├── data/                            ← Armazenamento local (JSON no disco)
+│   ├── universes.json               ← Definições de universos (tags)
+│   ├── templates.json               ← Blocos reutilizáveis de ritos
+│   ├── plan.json                    ← Plano semanal (referencia templates)
+│   └── days/                        ← Dados de execução por dia
+│       └── 2026-03-05.json
 │
-├── utils/
-│   └── helpers.js                   ← uid(), conversão de tempo, deepClone
-│
-├── hooks/
-│   ├── index.js                     ← Barrel export
-│   ├── useStorage.js                ← Hook genérico: lê/escreve JSON no storage
-│   ├── usePlan.js                   ← Hook do planejamento semanal + universos
-│   └── useDayData.js                ← Hook do dia: bootstrap automático do plano
-│
-├── components/
-│   ├── shared/                      ← Componentes reutilizados em múltiplas views
-│   │   ├── Icons.jsx                ← Todos os ícones SVG inline
-│   │   ├── Loader.jsx               ← Spinner de carregamento
-│   │   ├── AddRitualForm.jsx        ← Formulário "Novo Rito"
-│   │   └── AddActivityInline.jsx    ← Formulário inline "Nova Atividade"
-│   │
-│   ├── day/                         ← View de execução diária
-│   │   ├── DayView.jsx              ← Timeline + régua horária
-│   │   ├── RitualCard.jsx           ← Card de rito com progresso e atividades
-│   │   └── NotesPanel.jsx           ← Painel de notas do rito
-│   │
-│   ├── plan/                        ← View de planejamento (template semanal)
-│   │   ├── PlanView.jsx             ← Seletor de dia + CRUD de ritos-template
-│   │   ├── UniverseManager.jsx      ← CRUD de universos (tags)
-│   │   └── CopyDayDropdown.jsx      ← Copiar ritos entre dias
-│   │
-│   └── history/                     ← View de histórico
-│       └── HistoryView.jsx          ← Gráficos de distribuição + conclusão
-│
-└── styles/
-    └── theme.js                     ← Objeto centralizado com todos os estilos
+├── src/
+│   ├── App.jsx                      ← Raiz: 4 abas + estado global
+│   ├── api/
+│   │   └── storage.js               ← Client HTTP → Express API
+│   ├── constants/
+│   │   ├── index.js                 ← Config, universos padrão, shapes
+│   │   └── dates.js                 ← Formatação de datas
+│   ├── utils/
+│   │   └── helpers.js               ← uid(), tempo, deepClone
+│   ├── hooks/
+│   │   ├── useUniverses.js          ← CRUD universos via API
+│   │   ├── useTemplates.js          ← CRUD templates via API
+│   │   ├── usePlan.js               ← Plano semanal via API
+│   │   └── useDayData.js            ← Bootstrap plan+templates → execução
+│   ├── components/
+│   │   ├── templates/TemplatesView  ← Aba "Blocos": CRUD de blocos
+│   │   ├── plan/PlanView            ← Aba "Planejamento": atribui blocos
+│   │   ├── day/DayView              ← Aba "Dia": execução com timeline
+│   │   └── history/HistoryView      ← Aba "Histórico": gráficos
+│   └── styles/
+│       └── theme.js
 ```
 
-## Conceitos-chave
-
-### Fluxo de dados
+## Modelo de dados
 
 ```
-usePlan() ──→ plan (template semanal + universos)
-                │
-                ▼
-useDayData(date, plan) ──→ dayData (execução do dia)
-                              │
-                              ▼ bootstrap se dia é novo
-                           plan.days[dow]
+Templates (blocos reutilizáveis)
+  { id, name, activities: [{ id, name, duration, universe }] }
+        │
+        │  referenciado por templateId
+        ▼
+Plan (plano semanal)
+  { days: { 0: [{ id, templateId, startTime }], ... } }
+        │
+        │  materializado no primeiro acesso ao dia
+        ▼
+Day (execução)
+  { rituals: [{ id, templateId, name, startTime, notes,
+                activities: [{ ..., done }] }] }
 ```
 
-- **Plan** é o template. Define quais ritos existem para cada dia da semana.
-- **DayData** é a execução. Quando você navega para um dia novo, ele copia o template do plano como ponto de partida. A partir daí, alterações são independentes.
-- **Universos** são categorias (tags) configuráveis. Vivem dentro do Plan.
+## API REST
 
-### Storage
-
-Usa `window.storage` (API do Claude artifacts) com chaves hierárquicas:
-
-| Chave                  | Conteúdo                        |
-|------------------------|---------------------------------|
-| `agenda-v4:plan`       | Template semanal + universos    |
-| `agenda-v4:2026-03-05` | Dados do dia (ritos, notas, atividades) |
-
-### Camadas
-
-| Camada       | Responsabilidade                              |
-|-------------|-----------------------------------------------|
-| `constants` | Dados estáticos, configuração, nomes          |
-| `utils`     | Funções puras (sem React)                     |
-| `hooks`     | Estado + efeitos (lógica de negócio)          |
-| `components`| UI (apresentação + interação)                 |
-| `styles`    | Tokens visuais centralizados                  |
-
-### Dependências externas
-
-- **recharts** — gráficos (pizza + barras) na HistoryView
-- **Google Fonts** — Fraunces (display) + DM Sans (body)
+| Método | Rota            | Descrição            |
+|--------|-----------------|----------------------|
+| GET    | /api/universes  | Lista universos      |
+| PUT    | /api/universes  | Salva universos      |
+| GET    | /api/templates  | Lista templates      |
+| PUT    | /api/templates  | Salva templates      |
+| GET    | /api/plan       | Lê plano semanal     |
+| PUT    | /api/plan       | Salva plano semanal  |
+| GET    | /api/days/:date | Lê dados do dia      |
+| PUT    | /api/days/:date | Salva dados do dia   |
