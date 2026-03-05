@@ -1,1 +1,206 @@
-[]
+[
+  {
+    "id": "mmdyi5ngqmnwz",
+    "name": "Rotina Matinal",
+    "activities": [
+      {
+        "name": "placeholder",
+        "duration": 60,
+        "universe": "alimentacao",
+        "id": "mmdyom3v4yu9t"
+      }
+    ]
+  },
+  {
+    "id": "mmdymnmblbwne",
+    "name": "Rotina do Almoço",
+    "activities": [
+      {
+        "name": "placeholder",
+        "duration": 75,
+        "universe": "alimentacao",
+        "id": "mmdyp2pv7qpd9"
+      }
+    ]
+  },
+  {
+    "id": "mmdyn8lwcn2ee",
+    "name": "Rotina Vespertina",
+    "activities": [
+      {
+        "name": "placeholder",
+        "duration": 60,
+        "universe": "alimentacao",
+        "id": "mmdyprqrujv59"
+      }
+    ]
+  },
+  {
+    "id": "mmdyq1atucrz6",
+    "name": "Rotina Noturna",
+    "activities": [
+      {
+        "name": "placeholder",
+        "duration": 75,
+        "universe": "alimentacao",
+        "id": "mmdyqcsr0e21b"
+      }
+    ]
+  },
+  {
+    "id": "mmdyw42s8ztpv",
+    "name": "Manhã - Casa | Bloco 1",
+    "activities": [
+      {
+        "name": "placeholder",
+        "duration": 65,
+        "universe": "auditoria",
+        "id": "mmdz4a5aele39"
+      }
+    ]
+  },
+  {
+    "id": "mmdywatc1j9s4",
+    "name": "Manhã - Casa | Bloco 2",
+    "activities": [
+      {
+        "name": "placeholder",
+        "duration": 65,
+        "universe": "auditoria",
+        "id": "mmdz3yge8frcd"
+      }
+    ]
+  },
+  {
+    "id": "mmdywq2hydwgb",
+    "name": "Manhã - Casa | Bloco 3",
+    "activities": [
+      {
+        "name": "placeholder",
+        "duration": 65,
+        "universe": "auditoria",
+        "id": "mmdz3jrze0jm0"
+      }
+    ]
+  },
+  {
+    "id": "mmdywz5x7k72z",
+    "name": "Manhã - Casa | Bloco 4",
+    "activities": [
+      {
+        "name": "placeholder",
+        "duration": 65,
+        "universe": "auditoria",
+        "id": "mmdz5bi5tugu4"
+      }
+    ]
+  },
+  {
+    "id": "mmdyxe8tddzx8",
+    "name": "Manhã - Faculdade | Bloco 1",
+    "activities": [
+      {
+        "name": "placeholder",
+        "duration": 55,
+        "universe": "faculdade",
+        "id": "mmdz6r580enin"
+      }
+    ]
+  },
+  {
+    "id": "mmdyxjetb2oid",
+    "name": "Manhã - Faculdade | Bloco 2",
+    "activities": [
+      {
+        "name": "placeholder",
+        "duration": 55,
+        "universe": "faculdade",
+        "id": "mmdz72nq7dv6r"
+      }
+    ]
+  },
+  {
+    "id": "mmdyxr1q6pizh",
+    "name": "Manhã - Faculdade | Bloco 3",
+    "activities": [
+      {
+        "name": "placeholder",
+        "duration": 55,
+        "universe": "faculdade",
+        "id": "mmdz7b3nob1je"
+      }
+    ]
+  },
+  {
+    "id": "mmdyxx6kxmeo3",
+    "name": "Manhã - Faculdade | Bloco 4",
+    "activities": [
+      {
+        "name": "placeholder",
+        "duration": 55,
+        "universe": "faculdade",
+        "id": "mmdz7redewzhy"
+      }
+    ]
+  },
+  {
+    "id": "mmdz8xvvcgthk",
+    "name": "Tarde | Bloco 1",
+    "activities": [
+      {
+        "name": "placeholder",
+        "duration": 65,
+        "universe": "concursos",
+        "id": "mmdza5p2cja7l"
+      }
+    ]
+  },
+  {
+    "id": "mmdz91eh10qoz",
+    "name": "Tarde | Bloco 2",
+    "activities": [
+      {
+        "name": "placeholder",
+        "duration": 65,
+        "universe": "concursos",
+        "id": "mmdzawzjj6fxc"
+      }
+    ]
+  },
+  {
+    "id": "mmdz95asevlay",
+    "name": "Tarde | Bloco 3",
+    "activities": [
+      {
+        "name": "placeholder",
+        "duration": 65,
+        "universe": "concursos",
+        "id": "mmdzbdvrheqd1"
+      }
+    ]
+  },
+  {
+    "id": "mmdz99pjci3iz",
+    "name": "Tarde | Bloco 4",
+    "activities": [
+      {
+        "name": "placeholder",
+        "duration": 65,
+        "universe": "concursos",
+        "id": "mmdzc2e9t6zvw"
+      }
+    ]
+  },
+  {
+    "id": "mmdzcvwtdheih",
+    "name": "Buffer de traslado - Faculdade",
+    "activities": [
+      {
+        "name": "placeholder",
+        "duration": 30,
+        "universe": "faculdade",
+        "id": "mmdzdepge6e2u"
+      }
+    ]
+  }
+]

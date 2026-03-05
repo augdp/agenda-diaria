@@ -1,9 +1,77 @@
 {
   "days": {
     "0": [],
-    "1": [],
-    "2": [],
-    "3": [],
+    "1": [
+      {
+        "id": "mmdyrh22p07vd",
+        "templateId": "mmdyi5ngqmnwz",
+        "startTime": "06:45"
+      },
+      {
+        "id": "mmdzdz1vtvi2y",
+        "templateId": "mmdyw42s8ztpv",
+        "startTime": "07:00"
+      },
+      {
+        "id": "mmdyrvwiuih8x",
+        "templateId": "mmdymnmblbwne",
+        "startTime": "12:20"
+      },
+      {
+        "id": "mmdys2f6nueb8",
+        "templateId": "mmdyn8lwcn2ee",
+        "startTime": "17:55"
+      },
+      {
+        "id": "mmdys956v4230",
+        "templateId": "mmdyq1atucrz6",
+        "startTime": "22:10"
+      }
+    ],
+    "2": [
+      {
+        "id": "mmdyt2zu4ce3z",
+        "templateId": "mmdyi5ngqmnwz",
+        "startTime": "06:45"
+      },
+      {
+        "id": "mmdyt2zulq920",
+        "templateId": "mmdymnmblbwne",
+        "startTime": "12:20"
+      },
+      {
+        "id": "mmdyt2zuokus6",
+        "templateId": "mmdyn8lwcn2ee",
+        "startTime": "17:55"
+      },
+      {
+        "id": "mmdyt2zuhqott",
+        "templateId": "mmdyq1atucrz6",
+        "startTime": "22:10"
+      }
+    ],
+    "3": [
+      {
+        "id": "mmdyt41i6ut2a",
+        "templateId": "mmdyi5ngqmnwz",
+        "startTime": "06:45"
+      },
+      {
+        "id": "mmdyt41insxnl",
+        "templateId": "mmdymnmblbwne",
+        "startTime": "12:20"
+      },
+      {
+        "id": "mmdyt41ib4s13",
+        "templateId": "mmdyn8lwcn2ee",
+        "startTime": "17:55"
+      },
+      {
+        "id": "mmdyt41indeip",
+        "templateId": "mmdyq1atucrz6",
+        "startTime": "22:10"
+      }
+    ],
     "4": [],
     "5": [],
     "6": []

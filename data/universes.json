@@ -2,7 +2,6 @@
   "faculdade":   { "label": "Faculdade",        "emoji": "📚", "color": "#3A7BBF", "bg": "#DDEAF7" },
   "auditoria":   { "label": "Auditoria",        "emoji": "📋", "color": "#B8860B", "bg": "#F5EDCF" },
   "concursos":   { "label": "Concursos",        "emoji": "🎯", "color": "#9B4DCA", "bg": "#EEDDF7" },
-  "alimentacao": { "label": "Alimentação",      "emoji": "🍽️", "color": "#C06030", "bg": "#FDEAE0" },
-  "atencao":     { "label": "Atenção Familiar", "emoji": "🐾", "color": "#D4567A", "bg": "#F9DFE8" },
+  "alimentacao": { "label": "Ritos Humanos",    "emoji": "🐾", "color": "#C06030", "bg": "#FDEAE0" },
   "outro":       { "label": "Outro",            "emoji": "✦",  "color": "#6B8A6B", "bg": "#E0EDE4" }
 }

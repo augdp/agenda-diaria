@@ -29,6 +29,19 @@ export default function RitualCard({
   const pal      = universes[primary] || DEFAULT_UNIVERSES.outro;
   const hasNotes = ritual.notes && ritual.notes.trim().length > 0;
 
+  function addMinutes(time, minutes) {
+    const [h, m] = time.split(":").map(Number)
+
+    const total = h * 60 + m + minutes
+
+    const nh = Math.floor(total / 60)
+    const nm = total % 60
+
+    return `${String(nh).padStart(2, "0")}:${String(nm).padStart(2, "0")}`
+  }
+
+  const endTime = totM > 0 ? addMinutes(ritual.startTime, totM) : null
+
   return (
     <div
       style={{
@@ -42,7 +55,7 @@ export default function RitualCard({
       <div style={S.cardHead} onClick={onToggleExpand}>
         <div style={S.cardLeft}>
           <div style={S.cardTimeBadge}>
-            <span style={{ ...S.cardTime, color: pal.color }}>{ritual.startTime}</span>
+            <span style={{ ...S.cardTime, color: pal.color }}>{ritual.startTime}{endTime && ` - ${endTime}`}</span>
             {totM > 0 && <span style={S.cardDurLabel}>{totM}min</span>}
           </div>
           <div>
