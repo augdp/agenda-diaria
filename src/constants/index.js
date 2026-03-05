@@ -2,15 +2,14 @@
 export const HOURS = Array.from({ length: 18 }, (_, i) => i + 5); // 05h – 22h
 
 // ─── Duration options (minutes) ───
-export const DURATION_OPTIONS = [15, 20, 25, 30, 35, 40, 45, 50];
+export const DURATION_OPTIONS = [15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75];
 
 // ─── Default universes (seed for first run) ───
 export const DEFAULT_UNIVERSES = {
   faculdade:   { label: "Faculdade",        emoji: "📚", color: "#3A7BBF", bg: "#DDEAF7" },
   auditoria:   { label: "Auditoria",        emoji: "📋", color: "#B8860B", bg: "#F5EDCF" },
   concursos:   { label: "Concursos",        emoji: "🎯", color: "#9B4DCA", bg: "#EEDDF7" },
-  alimentacao: { label: "Alimentação",      emoji: "🍽️", color: "#C06030", bg: "#FDEAE0" },
-  atencao:     { label: "Atenção Familiar", emoji: "🐾", color: "#D4567A", bg: "#F9DFE8" },
+  atencao:     { label: "Ritos Humanos",    emoji: "🐾", color: "#D4567A", bg: "#F9DFE8" },
   outro:       { label: "Outro",            emoji: "✦",  color: "#6B8A6B", bg: "#E0EDE4" },
 };
 
