@@ -63,3 +63,9 @@ export async function saveDay(dateStr, data) {
     body: JSON.stringify(data),
   });
 }
+
+export async function deleteDay(date) {
+  await fetch(`/api/days/${date}`, {
+    method: "DELETE"
+  });
+}

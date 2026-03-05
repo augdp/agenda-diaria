@@ -19,53 +19,52 @@ export function useDayData(date, plan, templates) {
   const dk = dateKey(date);
   const dow = date.getDay();
 
+  const loadDay = useCallback(async () => {
+    setLoading(true);
+    try {
+      const existing = await getDay(dk);
+
+      if (existing) {
+        setDayData(existing);
+      } else {
+        const slots = plan?.days?.[dow] || [];
+
+        const rituals = slots
+          .map((slot) => {
+            const tpl = templates.find((t) => t.id === slot.templateId);
+            if (!tpl) return null;
+
+            return {
+              id: uid(),
+              templateId: tpl.id,
+              name: tpl.name,
+              startTime: slot.startTime,
+              notes: "",
+              activities: tpl.activities.map((a) => ({
+                ...deepClone(a),
+                id: uid(),
+                done: false,
+              })),
+            };
+          })
+          .filter(Boolean)
+          .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+        const fresh = { rituals };
+        setDayData(fresh);
+        await apiSave(dk, fresh);
+      }
+    } catch {
+      setDayData({ rituals: [] });
+    }
+
+    setLoading(false);
+  }, [dk, plan, templates, dow]);
+
   useEffect(() => {
     if (!plan || !templates) return;
-    let cancelled = false;
-
-    (async () => {
-      setLoading(true);
-      try {
-        const existing = await getDay(dk);
-        if (!cancelled) {
-          if (existing) {
-            setDayData(existing);
-          } else {
-            // Bootstrap: resolve plan slots → full rituals
-            const slots = plan.days[dow] || [];
-            const rituals = slots
-              .map((slot) => {
-                const tpl = templates.find((t) => t.id === slot.templateId);
-                if (!tpl) return null;
-                return {
-                  id: uid(),
-                  templateId: tpl.id,
-                  name: tpl.name,
-                  startTime: slot.startTime,
-                  notes: "",
-                  activities: tpl.activities.map((a) => ({
-                    ...deepClone(a),
-                    id: uid(),
-                    done: false,
-                  })),
-                };
-              })
-              .filter(Boolean)
-              .sort((a, b) => a.startTime.localeCompare(b.startTime));
-
-            const fresh = { rituals };
-            setDayData(fresh);
-            await apiSave(dk, fresh);
-          }
-        }
-      } catch {
-        if (!cancelled) setDayData({ rituals: [] });
-      }
-      if (!cancelled) setLoading(false);
-    })();
-
-    return () => { cancelled = true; };
-  }, [dk, plan, templates, dow]);
+    loadDay();
+  }, [plan, templates, loadDay]);
 
   const save = useCallback(
     async (next) => {
@@ -75,5 +74,5 @@ export function useDayData(date, plan, templates) {
     [dk],
   );
 
-  return { dayData, saveDay: save, loading };
+  return { dayData, saveDay: save, loadDay, loading };
 }

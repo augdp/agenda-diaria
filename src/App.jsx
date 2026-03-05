@@ -38,7 +38,7 @@ export default function App() {
   const { universes, saveUniverses, loading: uniLoading }  = useUniverses();
   const { templates, saveTemplates, loading: tplLoading }   = useTemplates();
   const { plan, savePlan, loading: planLoading }             = usePlan();
-  const { dayData, saveDay, loading: dayLoading }            = useDayData(curDate, plan, templates);
+  const { dayData, saveDay, loadDay, loading: dayLoading }            = useDayData(curDate, plan, templates);
 
   /* ── Week data (lazy for history) ── */
   const [weekData, setWeekData] = useState(null);
@@ -119,6 +119,7 @@ export default function App() {
             loading={dayLoading}
             onNav={navDay}
             onSave={saveDay}
+            onReloadDay={loadDay}
           />
         )}
 

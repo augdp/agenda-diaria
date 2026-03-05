@@ -7,8 +7,9 @@ import { HOURS } from "../../constants";
 import { formatDateFull, dateKey } from "../../constants/dates";
 import { uid, timeToMinutes } from "../../utils/helpers";
 import S from "../../styles/theme";
+import { deleteDay } from "../../api/storage";
 
-export default function DayView({ date, dayData, universes, loading, onNav, onSave }) {
+export default function DayView({ date, dayData, universes, loading, onNav, onSave, onReloadDay }) {
   const [expanded, setExpanded] = useState(null);
   const [showAdd, setShowAdd]   = useState(false);
 
@@ -26,6 +27,14 @@ export default function DayView({ date, dayData, universes, loading, onNav, onSa
   const deleteRitual = (id) => {
     onSave({ ...data, rituals: data.rituals.filter((r) => r.id !== id) });
     if (expanded === id) setExpanded(null);
+  };
+
+  const regenerateDay = async () => {
+    const d = dateKey(date);
+
+    await deleteDay(d);
+
+    onReloadDay();
   };
 
   const updateNotes = (id, notes) => {
@@ -77,6 +86,19 @@ export default function DayView({ date, dayData, universes, loading, onNav, onSa
           <button onClick={() => onNav(-1)} style={S.navBtn}><Chevron dir="left" /></button>
           <div style={{ textAlign: "center", flex: 1 }}>
             <h1 style={S.dateTitle}>{formatDateFull(date)}</h1>
+            <button
+              onClick={regenerateDay}
+              style={{
+                marginTop: 6,
+                fontSize: 12,
+                opacity: 0.6,
+                cursor: "pointer",
+                background: "none",
+                border: "none"
+              }}
+            >
+              regerar dia
+            </button>
             {isToday && <span style={S.badge}>hoje</span>}
           </div>
           <button onClick={() => onNav(1)} style={S.navBtn}><Chevron dir="right" /></button>

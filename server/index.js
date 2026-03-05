@@ -113,6 +113,21 @@ app.get("/api/days", async (_req, res) => {
   }
 });
 
+app.delete("/api/days/:date", async (req, res) => {
+  const file = path.join(DAYS_DIR, `${req.params.date}.json`);
+
+  try {
+    await fs.unlink(file);
+    res.json({ ok: true });
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      // arquivo não existe — nada para apagar
+      return res.json({ ok: true });
+    }
+    throw err;
+  }
+});
+
 /* ═══════════════════════════════════════
    START
    ═══════════════════════════════════════ */
