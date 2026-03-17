@@ -9,7 +9,8 @@
         "universe": "alimentacao",
         "id": "mmdyom3v4yu9t"
       }
-    ]
+    ],
+    "group": "Ritos"
   },
   {
     "id": "mmdymnmblbwne",
@@ -21,7 +22,8 @@
         "universe": "alimentacao",
         "id": "mmdyp2pv7qpd9"
       }
-    ]
+    ],
+    "group": "Ritos"
   },
   {
     "id": "mmdyn8lwcn2ee",
@@ -33,7 +35,8 @@
         "universe": "alimentacao",
         "id": "mmdyprqrujv59"
       }
-    ]
+    ],
+    "group": "Ritos"
   },
   {
     "id": "mmdyq1atucrz6",
@@ -45,7 +48,8 @@
         "universe": "alimentacao",
         "id": "mmdyqcsr0e21b"
       }
-    ]
+    ],
+    "group": "Ritos"
   },
   {
     "id": "mmdyw42s8ztpv",
@@ -57,7 +61,8 @@
         "universe": "auditoria",
         "id": "mmdz4a5aele39"
       }
-    ]
+    ],
+    "group": "Auditoria"
   },
   {
     "id": "mmdywatc1j9s4",
@@ -69,7 +74,8 @@
         "universe": "auditoria",
         "id": "mmdz3yge8frcd"
       }
-    ]
+    ],
+    "group": "Auditoria"
   },
   {
     "id": "mmdywq2hydwgb",
@@ -81,7 +87,8 @@
         "universe": "auditoria",
         "id": "mmdz3jrze0jm0"
       }
-    ]
+    ],
+    "group": "Auditoria"
   },
   {
     "id": "mmdywz5x7k72z",
@@ -93,7 +100,8 @@
         "universe": "auditoria",
         "id": "mmdz5bi5tugu4"
       }
-    ]
+    ],
+    "group": "Auditoria"
   },
   {
     "id": "mmdyxe8tddzx8",
@@ -105,7 +113,8 @@
         "universe": "faculdade",
         "id": "mmdz6r580enin"
       }
-    ]
+    ],
+    "group": "Faculdade"
   },
   {
     "id": "mmdyxjetb2oid",
@@ -117,7 +126,8 @@
         "universe": "faculdade",
         "id": "mmdz72nq7dv6r"
       }
-    ]
+    ],
+    "group": "Faculdade"
   },
   {
     "id": "mmdyxr1q6pizh",
@@ -129,7 +139,8 @@
         "universe": "faculdade",
         "id": "mmdz7b3nob1je"
       }
-    ]
+    ],
+    "group": "Faculdade"
   },
   {
     "id": "mmdyxx6kxmeo3",
@@ -141,7 +152,8 @@
         "universe": "faculdade",
         "id": "mmdz7redewzhy"
       }
-    ]
+    ],
+    "group": "Faculdade"
   },
   {
     "id": "mmdz8xvvcgthk",
@@ -153,7 +165,8 @@
         "universe": "concursos",
         "id": "mmdza5p2cja7l"
       }
-    ]
+    ],
+    "group": "Concursos"
   },
   {
     "id": "mmdz91eh10qoz",
@@ -165,7 +178,8 @@
         "universe": "concursos",
         "id": "mmdzawzjj6fxc"
       }
-    ]
+    ],
+    "group": "Concursos"
   },
   {
     "id": "mmdz95asevlay",
@@ -177,7 +191,8 @@
         "universe": "concursos",
         "id": "mmdzbdvrheqd1"
       }
-    ]
+    ],
+    "group": "Concursos"
   },
   {
     "id": "mmdz99pjci3iz",
@@ -189,7 +204,8 @@
         "universe": "concursos",
         "id": "mmdzc2e9t6zvw"
       }
-    ]
+    ],
+    "group": "Concursos"
   },
   {
     "id": "mmdzcvwtdheih",
@@ -201,6 +217,7 @@
         "universe": "faculdade",
         "id": "mmdzdepge6e2u"
       }
-    ]
+    ],
+    "group": "Faculdade"
   }
 ]
